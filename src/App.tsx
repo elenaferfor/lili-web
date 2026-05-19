@@ -1,5 +1,5 @@
 import './App.css'
-import {BrowserRouter, Routes, Route} from "react-router-dom";
+import {HashRouter, Routes, Route} from "react-router-dom";
 import Index from "./screens/index/Index.tsx";
 import Login from "./screens/login/Login.tsx";
 import AuthProvider from "./auth/AuthContext.tsx";
@@ -23,7 +23,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
       <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
+          <HashRouter>
               <AuthProvider>
                 <Routes>
                     <Route path="/login" element={<Login/>} />
@@ -88,7 +88,7 @@ function App() {
                     }/>
                 </Routes>
               </AuthProvider>
-          </BrowserRouter>
+          </HashRouter>
       </QueryClientProvider>
   )
 }
