@@ -1,0 +1,256 @@
+import "../section/Section.css";
+import "./InfoLibro.css"
+import EstadoLecturaLibro from "./EstadoLecturaLibro.tsx";
+import EstadoCategoriasLibro from "./EstadoCategoriasLibro.tsx";
+import {useEffect, useRef, useState} from "react";
+import {useParams} from "react-router-dom";
+import {useUsuarioLibro} from "../../hooks/useUsuarioLibro.tsx";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import api from "../../api/Axios.tsx";
+import {useAuth} from "../../auth/AuthContext.tsx";
+import {
+    type Favorito,
+    FAVORITOS,
+    type UsuarioLibroPostRequest,
+    type SyncEstado,
+    type PrestamoIcono, ICONOS_PRESTAMO, type Prestamo
+} from "../../types.tsx";
+import EstadoSerieLibro from "./EstadoSerieLibro.tsx";
+import PanelLibro from "../panel_libro/PanelLibro.tsx";
+import {usePrestamos} from "../../hooks/usePrestamos.tsx";
+
+const InfoLibro = (props: any) => {
+    const { libroId } = useParams();
+    const libroIdNum = Number(libroId);
+    const queryClient = useQueryClient();
+    const [noUsuarioLibro, setNoUsuarioLibro] = useState(true); 
+    const [requestBody, setRequestBody] = useState<UsuarioLibroPostRequest>();
+    const { user } = useAuth();
+    
+    const [isFav, setIsFav] = useState<Favorito>(FAVORITOS[1]);
+    const [isPublico, setIsPublico] = useState<boolean>(true);
+    const [syncFav, setSyncFav] = useState<SyncEstado>("idle");
+    const [syncPublico, setSyncPublico] = useState<SyncEstado>("idle");
+    const [syncCrear, setSyncCrear] = useState<SyncEstado>("idle");
+
+    const [panelPrestarOpen, setPanelPrestarOpen] = useState(false);
+    const [iconoPrestamo, setIconoPrestamo] = useState<PrestamoIcono>(ICONOS_PRESTAMO[0]);
+    
+    const [editandoSerie, setEditandoSerie] = useState<boolean>(false);
+    const btnSerieRef = useRef<HTMLButtonElement>(null);
+    const serieRef = useRef<HTMLDivElement>(null);
+    
+    // Traer usuarioLibro y series del usuario
+    const {data: usuarioLibro} = useUsuarioLibro(libroIdNum);
+    const {data: prestamos} = usePrestamos();
+    
+    useEffect(() => {
+        if(!usuarioLibro){
+            setNoUsuarioLibro(true);
+            setIsPublico(true);
+            setRequestBody({
+                "usuario": user?.id,
+                "libro": libroIdNum,
+                "serie": null,
+                "numero_en_serie": null,
+                "estado": "s_e",
+                "favorito": false,
+                "publico": true,
+                "categorias": []
+            });
+            return;
+        }
+        setNoUsuarioLibro(false);
+        const fav = usuarioLibro.favorito ? FAVORITOS[0] : FAVORITOS[1];
+        setIsFav(fav);
+        setIsPublico(usuarioLibro.publico);
+    }, [usuarioLibro, user]);
+
+    useEffect(() => {
+        if (!editandoSerie) return;
+        const handler = (e: MouseEvent) => {
+            if (serieRef.current && !serieRef.current.contains(e.target as Node)
+                && !btnSerieRef.current?.contains(e.target as Node)) {
+                setEditandoSerie(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [editandoSerie]);
+
+    useEffect(() => {
+        if(!prestamos) return;
+        const encontrado = prestamos.find((p: Prestamo) =>
+            p.libro_detalle.id === libroIdNum && p.estado === "activo"
+        );
+        if(!encontrado){
+            setIconoPrestamo(ICONOS_PRESTAMO[0]);
+            return;
+        }
+        if(encontrado.prestatario_nombre.id === user?.id){
+            setIconoPrestamo(ICONOS_PRESTAMO[2]);
+        }else{
+            setIconoPrestamo(ICONOS_PRESTAMO[1]);
+        }
+    }, [prestamos]);
+    
+    // Mutación crear libroUsuario
+    const { mutate: crearLibroUsuario } = useMutation({
+        mutationFn: () =>
+            api.post(`/libros_usuarios/`, requestBody),
+        onMutate: () => setSyncCrear("enviando"),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["usuarioLibro", libroIdNum] });
+            setSyncCrear("ok");
+            setTimeout(() => setSyncCrear("idle"), 1500);
+        },
+        onError: () => setSyncCrear("idle"),
+    });
+
+    // Mutación borrar libroUsuario
+    const { mutate: borrarLibroUsuario } = useMutation({
+        mutationFn: () =>
+            api.delete(`/libros_usuarios/${usuarioLibro?.id}/`),
+        onMutate: () => setSyncCrear("enviando"),
+        onSuccess: () => {
+            console.log("DELETE ok, invalidando query...");
+            queryClient.invalidateQueries({ queryKey: ["usuarioLibro", libroIdNum] });
+            setSyncCrear("ok");
+            setTimeout(() => setSyncCrear("idle"), 1500);
+        },
+        onError: (error) => {
+            console.log("DELETE error: ", error);
+            setSyncCrear("idle");
+        }
+    });
+    
+    // Mutación nuevo estado favorito
+    const { mutate: cambiarFavorito } = useMutation({
+        mutationFn: () =>
+            api.post(`/libros_usuarios/${usuarioLibro?.id}/cambiar_favorito/`),
+        onMutate: () => setSyncFav("enviando"),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["usuarioLibro", libroIdNum] });
+            setSyncFav("ok");
+            setTimeout(() => setSyncFav("idle"), 1500);
+        },
+        onError: () => setSyncFav("idle"),
+    });
+    
+    // Mutación cambiar estado público
+    const { mutate: cambiarPublico } = useMutation({
+        mutationFn: () =>
+            api.post(`/libros_usuarios/${usuarioLibro?.id}/cambiar_publico/`),
+        onMutate: () => setSyncPublico("enviando"),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["usuarioLibro", libroIdNum] });
+            setSyncPublico("ok");
+            setTimeout(() => setSyncPublico("idle"), 1500);
+        },
+        onError: () => setSyncPublico("idle"),
+    });
+    
+    const crearBorrarLibroUsuario = () => {
+        if(noUsuarioLibro) {
+            crearLibroUsuario();
+        }else{
+            borrarLibroUsuario();
+        }
+    }
+    
+    const toggleFav = (fav: Favorito) => {
+        setIsFav(fav);
+        cambiarFavorito();
+    }
+
+    const togglePublico = () => {
+        setIsPublico(p => !p);
+        cambiarPublico();
+    };
+
+    const syncIconoFav = () => {
+        if(syncFav === "enviando") return <i className="material-symbols-rounded">sync</i>;
+        if(syncFav === "ok") return <i className="material-symbols-rounded">check_circle</i>;
+        return null;
+    };
+
+    const syncIconoPublico = () => {
+        if (syncPublico === "enviando") return <i className="material-symbols-rounded">sync</i>;
+        if (syncPublico === "ok") return <i className="material-symbols-rounded">check_circle</i>;
+        return null;
+    };
+
+    const syncIconoCrear = () => {
+        if(syncCrear === "enviando") return <i className="material-symbols-rounded">sync</i>;
+        if(syncCrear === "ok") return <i className="material-symbols-rounded">check_circle</i>;
+        return null;
+    };
+    
+    return <section>
+        <div className="detalleLibro">
+            <div className="detalleLibroInfo">
+                <div className="detalleLibroPortada">
+                    <img src={props.data.portada} alt={props.data.titulo}/>
+                </div>
+                <div className="detalleLibroTexto">
+                    <h1>{props.data.titulo}</h1>
+                    <p className="autor">{props.data.autores_detalle.map((autor: any) => autor.nombre).join(", ")}</p>
+                    <p><span>ISBN/UID:</span> {props.data.isbn}</p>
+                    <p><span>Formato:</span> Tapa dura</p>
+                    <p><span>Idioma:</span> Castellano</p>
+                    <p><span>Fecha publicación original:</span> {props.data.ano_pub_og}</p>
+                    <p><span>Año de la edición:</span> {props.data.ano_pub}</p>
+                    <p><span>Editorial:</span> {props.data.editorial_detalle?.nombre}</p>
+                    { noUsuarioLibro ?
+                        <div className="detalleLibroEstados">
+                            <button className="estadoAnadir" onClick={crearBorrarLibroUsuario}>Añadir
+                                <i className="material-symbols-rounded">add</i>{syncIconoCrear()}</button>
+                        </div>
+                        :
+                        <div className="detalleLibroEstados">
+                            <EstadoCategoriasLibro libroId={libroIdNum}/>
+                            <EstadoLecturaLibro/>
+
+                            <button className={isFav.clase} onClick={() => toggleFav(isFav)}>Favorito
+                                <i className={isFav.iconoClase}>favorite</i>{syncIconoFav()}</button>
+                            <button className={isPublico ? "btnPublico activo" : "btnPublico"}
+                                    onClick={togglePublico}>
+                                {isPublico ? "Público" : "Privado"}
+                                <i className="material-symbols-rounded">
+                                    {isPublico ? "lock_open" : "lock"}
+                                </i>
+                                {syncIconoPublico()}
+                            </button>
+                            
+                            {/* // Préstamo */ }
+                            <button onClick={() => setPanelPrestarOpen(true)}
+                                    className={iconoPrestamo.clase}>
+                                {iconoPrestamo.texto}
+                                <i className="material-symbols-rounded">{iconoPrestamo.icono}</i>
+                            </button>
+                            {panelPrestarOpen && (
+                                <PanelLibro
+                                    libroId={libroIdNum}
+                                    onClose={() => setPanelPrestarOpen(false)}
+                                    soloPrestar={true}
+                                />
+                            )}
+                            
+                            <button onClick={crearBorrarLibroUsuario}>Eliminar
+                                <i className="material-symbols-rounded">close</i>{syncIconoCrear()}</button>
+                        </div>
+                    }
+                </div>
+            </div>
+            { !noUsuarioLibro &&
+                <EstadoSerieLibro usuarioLibro={usuarioLibro} libroIdNum={libroIdNum} />
+            }
+            <div className="detalleLibroSinopsis">
+                <p>Sinopsis:</p>
+                <p>{props.data.sinopsis}</p>
+            </div>
+        </div>
+    </section>
+}
+
+export default InfoLibro;

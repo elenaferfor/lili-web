@@ -1,0 +1,97 @@
+/* CARRUSEL */
+.carruselLibros, .sinCarrusel{
+    display: grid;
+    gap: .5rem 0;
+    overflow: hidden;
+    grid-auto-flow: column;
+    justify-content: start;
+    justify-items: stretch;
+    grid-auto-columns: 160px;
+}
+
+.carruselLibrosCategorias{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 160px);
+    justify-content: start;
+    gap: .5rem 0;
+}
+
+.slick-slider{
+    overflow: hidden;
+}
+
+.slick-slide{
+    display: flex !important;
+    justify-content: center;
+}
+
+.slick-slide > div {
+    margin: 0 .5rem;
+}
+
+.slick-list {
+    margin: 0 -.5rem;
+}
+
+.slick-track{
+    margin-left: 0;
+}
+
+/* BOTONES CARRUSEL */
+.slick-dots{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+    color: var(--blue_grey_second);
+    position: relative;
+    bottom: unset;
+    margin-bottom: .2rem;
+}
+
+.slick-dots button{
+    border: none;
+    color: var(--dark_blue);
+    width: 0;
+    height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: unset;
+    padding: 0 .6rem;
+}
+
+.slick-dots .activo{
+    color: var(--dark_blue);
+}
+
+.slick-dots button:focus {
+    outline: none;
+}
+
+.arrow:hover{
+    border-radius: 100%;
+    background-color: var(--light_blue_second);
+}
+
+.arrow:active{
+    background-color: var(--dark_blue);
+    color: var(--white);
+}
+
+.slick-dots ul{
+    display: inline-flex;
+    align-items: center;
+}
+
+.slick-dots > li{
+    margin: 0;
+}
+
+.slick-dots > ul > li{
+    color: var(--blue_grey_second);
+}
+
+.slick-dots > ul > li.slick-active{
+    color: var(--dark_blue);
+}
