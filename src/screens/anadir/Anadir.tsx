@@ -20,7 +20,9 @@ const Anadir = () => {
                 <section>
                     <div className="tituloAnadir">
                         <h1>Añadir</h1>
-                        <Link to="#formulario">Añadir manualmente</Link>
+                        <Link to="." onClick={(e) => { e.preventDefault(); document.getElementById('formulario')?.scrollIntoView({ behavior: 'smooth' }); }}>
+                            Añadir manualmente
+                        </Link>
                         { resultados.length === 0 ?
                             <h2>No hay resultados</h2> :
                             <h2>Mostrando resultados para <span>{query}...</span></h2>

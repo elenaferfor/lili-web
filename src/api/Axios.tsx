@@ -30,7 +30,7 @@ api.interceptors.response.use(
                 return api(originalRequest);
             } catch {
                 // si no puede refrescar, caducó el login
-                window.location.href = "/login";
+                window.location.hash = "/login";
             }
         }
         
