@@ -8,7 +8,7 @@ const SectionAmigosCats = (props: any) => {
         <h1><Link to={`/perfil/${props.amigoId}`}>@{props.username}</Link></h1>
         <div className="amigo_perfil_tags">
             <div className="amigoFoto">
-                <img src="/perfil/profile.png" alt="Foto de perfil"/>
+                <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt="Foto de perfil"/>
             </div>
             <div className="tags_usuario">
                 { props.categorias && 

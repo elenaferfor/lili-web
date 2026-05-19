@@ -118,7 +118,7 @@ const PerfilOtro = () => {
                     <h1>@{usuario?.username}</h1>
                     <div className="perfilCabecera">
                         <div className="fotoPerfil">
-                            <img src="/perfil/profile.png" alt="Foto de perfil"/>
+                            <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt="Foto de perfil"/>
                         </div>
                         <div className="perfilColecciones">
                             { bloqueAmistad() }

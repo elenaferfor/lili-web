@@ -32,7 +32,7 @@ const Perfil = () => {
                     <h1>@{user.user?.username}</h1>
                     <div className="perfilCabecera">
                         <div className="fotoPerfil">
-                            <img src="/perfil/profile.png" alt="Foto de perfil"/>
+                            <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt="Foto de perfil"/>
                         </div>
                         <div className="perfilColecciones">
                             <p className="perfilColeccionesP">Colecciones públicas:</p>

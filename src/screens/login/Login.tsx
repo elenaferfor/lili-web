@@ -45,7 +45,7 @@ const Login = () => {
     
     return <div className="login">
         <div className="logo_login">
-            <Link to="/" className="logo_link"><img src="./logo_dark.svg" alt="logo"/></Link>
+            <Link to="/" className="logo_link"><img src={`${import.meta.env.BASE_URL}logo_dark.svg`} alt="logo"/></Link>
         </div>
         <form id="login" onSubmit={OnSubmitCustom}>
             {successMessage && <p>{successMessage}</p>}

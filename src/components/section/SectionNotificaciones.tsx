@@ -109,7 +109,7 @@ const SectionNotificaciones = (props: any) => {
             {props.tipo === "Petición de amistad" &&
                 <>
                     <div className="amigoFoto">
-                        <img src="/perfil/profile.png" alt={amistadInfo.nombre}/>
+                        <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt={amistadInfo.nombre}/>
                     </div>
                     { amistadGestionada ?
                         <p>{textoAmistadGestionada}</p> :

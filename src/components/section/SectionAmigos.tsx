@@ -16,7 +16,7 @@ const SectionAmigos = (props: any) => {
                 <div className="amigo">
                     <div className="fotoPerfil">
                         <Link to={`/perfil/${otroUsuario.id}`}>
-                            <img src="/perfil/profile.png" alt={otroUsuario.username}/>
+                            <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt={otroUsuario.username}/>
                         </Link>
                     </div>
                     <Link to={`/perfil/${otroUsuario.id}`}>@{otroUsuario.username}</Link>
