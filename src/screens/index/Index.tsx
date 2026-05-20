@@ -2,6 +2,7 @@ import "./Index.css"
 import SectionSinGet from "../../components/section/SectionSinGet.tsx";
 import {useUsuarioLibrosLista} from "../../hooks/useUsuarioLibro.tsx";
 import {Layout} from "../Layout.tsx";
+import {usePrestamos} from "../../hooks/usePrestamos.tsx";
 
 const Index = () => {
 

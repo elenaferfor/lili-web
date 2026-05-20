@@ -7,6 +7,7 @@ import {useCategorias} from "../../hooks/useCategoria.tsx";
 import {useAmistades} from "../../hooks/useAmistades.tsx";
 import SectionAmigos from "../../components/section/SectionAmigos.tsx";
 import {Layout} from "../Layout.tsx";
+import {usePrestamos} from "../../hooks/usePrestamos.tsx";
 
 const Perfil = () => {
     
