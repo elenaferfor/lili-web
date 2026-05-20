@@ -56,6 +56,12 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
     const btnPrestamoRef = useRef<HTMLButtonElement>(null);
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState<PrestamoIcono>(ICONOS_PRESTAMO[0]);
     const [prestamoActual, setPrestamoActual] = useState<Prestamo | undefined>(undefined);
+    const TEXTOS_PRESTAMOS = [
+        'Elige "prestar" y una amistad para crear un préstamo:',
+        'Elige "sin préstamos" para marcar como devuelto o elige otra amistad para cambiar el préstamo de usuario:',
+        'Este libro es un préstamo:'
+    ]
+    const [textoPrestamo, setTextoPrestamo] = useState<string>(TEXTOS_PRESTAMOS[0]);
 
     const [amigoIsOpen, setAmigoIsOpen] = useState(false);
     const amigoRef = useRef<HTMLDivElement>(null);
@@ -68,8 +74,8 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
     const btnSeriesRef = useRef<HTMLInputElement>(null);
     const [serieSeleccionada, setSerieSeleccionada] = useState<Serie | undefined>(undefined);
     const [serieTexto, setSerieTexto] = useState<string>("");
-    const [serieSelecTotal, setSerieSelecTotal] = useState<number>(0);
-    const [serieSelecNum, setSerieSelecNum] = useState<number>(0);
+    const [serieSelecTotal, setSerieSelecTotal] = useState<number | undefined>(undefined);
+    const [serieSelecNum, setSerieSelecNum] = useState<number | undefined>(undefined);
     const [seriesLista, setSeriesLista] = useState<Serie[]>([]);
 
     // Traer valores del servidor
@@ -143,6 +149,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
         if (!encontrado) {
             setPrestamoSeleccionado(ICONOS_PRESTAMO[0]);
             setAmistadSeleccionada(undefined);
+            setTextoPrestamo(TEXTOS_PRESTAMOS[0]);
             return;
         }
         if (encontrado.prestatario_nombre.id === user?.id) {
@@ -152,6 +159,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                 a.usuario_b_nombre.id === encontrado.prestador_id
             );
             resolverAmigo(amistadEncontrada!);
+            setTextoPrestamo(TEXTOS_PRESTAMOS[2]);
         } else {
             setPrestamoSeleccionado(ICONOS_PRESTAMO[1]);
             const amistadEncontrada = amistades?.find(a =>
@@ -159,6 +167,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                 a.usuario_b_nombre.id === encontrado.prestatario_nombre.id
             );
             resolverAmigo(amistadEncontrada!);
+            setTextoPrestamo(TEXTOS_PRESTAMOS[1]);
         }
     }, [prestamos, amistades]);
     
@@ -480,14 +489,14 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                                 </div>
                                 <div className="serie_numeros">
                                     <div className="serie_num">
-                                        <input type="number" value={serieSelecNum}
-                                               onChange={(e) => setSerieSelecNum(Number(e.target.value))}
+                                        <input type="number" value={serieSelecNum ?? undefined}
+                                               onChange={(e) => setSerieSelecNum(Number(e.target.value) ? Number(e.target.value) : undefined)}
                                                placeholder="0"/>
                                     </div>
                                     <span>de</span>
                                     <div className="serie_num">
-                                        <input type="number" value={serieSelecTotal}
-                                               onChange={(e) => setSerieSelecTotal(Number(e.target.value))}
+                                        <input type="number" value={serieSelecTotal ?? undefined}
+                                               onChange={(e) => setSerieSelecTotal(Number(e.target.value) ? Number(e.target.value) : undefined)}
                                                placeholder="??"/>
                                     </div>
                                 </div>
@@ -531,7 +540,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                 )}
                 <div className="panelAnadirPrestamo">
                     <h1>Préstamos</h1>
-                    <p>Elige "prestar" o "en préstamo" para añadir seguimiento:</p>
+                    <p>{textoPrestamo}</p>
                     <div className="barraPrestar">
                         { prestamoSeleccionado.tipo === "en_prestamo" ?
                             <>
