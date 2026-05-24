@@ -35,20 +35,17 @@ const PerfilOtro = () => {
     const categoriasUsuario = categorias?.filter(c => c.usuario === amigoId );
 
     const [amistadEstado, setAmistadEstado] = useState<AmistadEstado>(ESTADOS_AMISTAD[0]);
-    
-    const onSuccessAmistad = () => {
-        queryClient.invalidateQueries({ queryKey: ["amistades"] });
-    };
-    
+
     // Solicitar amistad: crea amistad y notifica
     const { mutate: solicitarAmistad } = useMutation({
         mutationFn: async () => {
             const { data: nuevaAmistad } = await api.post("/amistades/", {
                 usuario_a: user?.id,
                 usuario_b: amigoId,
+                estado: "pen"
             });
             await api.post("/notificaciones/", {
-               usuario: amigoId,
+                usuario: amigoId,
                 tipo: "Petición de amistad",
                 texto: "te ha hecho una solicitud de amistad.",
                 leida: false,
@@ -56,13 +53,21 @@ const PerfilOtro = () => {
             });
             return nuevaAmistad;
         },
-        onSuccess: onSuccessAmistad,
+        onSuccess: (nuevaAmistad) => {
+            setAmistadActual(nuevaAmistad);
+            setAmistadEstado(ESTADOS_AMISTAD[1]);
+            queryClient.invalidateQueries({ queryKey: ["amistades"] });
+        },
     });
-    
+
     // Borrar amistad
     const { mutate: borrarAmistad } = useMutation({
         mutationFn: () => api.post(`/amistades/${amistadActual?.id}/ignorar/`),
-        onSuccess: onSuccessAmistad,
+        onSuccess: () => {
+            setAmistadActual(undefined);
+            setAmistadEstado(ESTADOS_AMISTAD[0]);
+            queryClient.invalidateQueries({ queryKey: ["amistades"] });
+        },
     });
     
     useEffect(() => {
