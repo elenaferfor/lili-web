@@ -31,6 +31,22 @@ const Barra = () => {
             setSearchValue('');
         }
     }
+
+    // Borrar la búsqueda al hacer click fuera
+    useEffect(() => {
+        const handleClickFuera = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const dentroDeBarra = barraRef.current?.contains(target);
+            const dentroDePanel = target.closest('[data-no-cerrar-busqueda]');
+
+            if (!dentroDeBarra && !dentroDePanel) {
+                setSearchValue("");
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickFuera);
+        return () => document.removeEventListener("mousedown", handleClickFuera);
+    }, []);
     
     return <div className="barra" ref={barraRef}>
         <form id="search" name="search" method="post" onSubmit={busquedaCompleta}>
