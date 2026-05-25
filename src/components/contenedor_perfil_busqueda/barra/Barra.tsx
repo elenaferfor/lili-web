@@ -2,7 +2,7 @@ import "./Barra.css"
 import {Link, useNavigate} from "react-router-dom";
 import Resultado from "./resultado/Resultado.tsx";
 import "./Barra.css";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useBusqueda} from "../../../hooks/useBusqueda.tsx";
 
 const Barra = () => {
