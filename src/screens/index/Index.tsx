@@ -10,6 +10,7 @@ const Index = () => {
     const { data: prestamos } = usePrestamos();
     
     const deseos = libros?.filter(l => l.categorias_detalle.some(c => c.nombre === "Deseos"));
+    const leyendo = libros?.filter(l => l.estado === "leyendo");
     
     return <Layout>
         <div className="contenido">
@@ -20,8 +21,12 @@ const Index = () => {
                         <p>¡Bienvenide a Lili! Busca algún libro y añádelo a tu biblioteca para empezar tu colección.</p>
                     </section> :
                     <>
-                        <Section titulo={"Últimos añadidos"} listaLibros={libros?.slice(0, 15)} isLoading={librosIsLoading} prestamos={prestamos}/>
-                        <Section titulo={"Lista de deseos"} listaLibros={deseos?.slice(0, 15)} isLoading={librosIsLoading} prestamos={prestamos}/>
+                        { !librosIsLoading && leyendo!.length > 0 &&
+                            <Section titulo={"Leyendo"} listaLibros={leyendo?.slice(0, 15)} isLoading={librosIsLoading} prestamos={prestamos}/>
+                        }
+                        { !librosIsLoading && deseos!.length > 0 &&
+                            <Section titulo={"Lista de deseos"} listaLibros={deseos?.slice(0, 15)} isLoading={librosIsLoading} prestamos={prestamos}/>
+                        }
                     </>
                 }
             </div>
