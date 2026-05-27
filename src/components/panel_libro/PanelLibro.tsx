@@ -317,7 +317,8 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
         mutationFn: (usuarioLibroId: number) =>
             api.post(`/libros_usuarios/${usuarioLibroId}/anadir_serie/`, {
                 serie: serieSeleccionada?.id ?? serieTexto,
-                num_en_serie: serieSelecNum
+                num_en_serie: serieSelecNum,
+                volumenes: serieSelecTotal
             }),
         onError: () => setSync("idle"),
     });
@@ -381,7 +382,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
     // Crear un préstamo prestador -> prestatario (se crea como activo)
     const handlePrestar = async () => {
         if(prestamoSeleccionado.tipo === "prestado"){
-
+            
             // Si ya hay un préstamo activo, se devuelve y se crea uno nuevo
             const prestamoOtroAmigo = prestamoActual && prestamoActual.prestatario_nombre.id !== amigo.id;
             if(prestamoOtroAmigo){
@@ -555,7 +556,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                                 <p>de</p>
                                 <button className="amigoSeleccionado" ref={btnAmigoRef} onClick={() => setAmigoIsOpen(o => !o)}>
                                     <div className="amigoSeleccionadoFoto">
-                                        <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt="Foto de perfil"/>
+                                        <img src="/perfil/profile.png" alt="Foto de perfil"/>
                                     </div>
                                     { amistadSeleccionada ? <p>{amigo.username}</p> : <p>@usuario...</p>}
                                 </button>
@@ -580,7 +581,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                                         <p>a</p>
                                         <button className="amigoSeleccionado" ref={btnAmigoRef} onClick={() => setAmigoIsOpen(o => !o)}>
                                             <div className="amigoSeleccionadoFoto">
-                                                <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt="Foto de perfil"/>
+                                                <img src="/perfil/profile.png" alt="Foto de perfil"/>
                                             </div>
                                             { amistadSeleccionada ? <p>{amigo.username}</p> : <p>@usuario...</p>}
                                         </button>
@@ -589,7 +590,7 @@ const PanelLibro = ({ libroId, onClose, soloPrestar = false }: PanelLibroProps) 
                                                 {amistades?.map((a: Amistad) => (
                                                     <button key={a.id} onClick={() => handleAmigo(a)}>
                                                         <div className="amigoSeleccionadoFoto">
-                                                            <img src={`${import.meta.env.BASE_URL}perfil/profile.png`} alt="Foto de perfil"/>
+                                                            <img src="/perfil/profile.png" alt="Foto de perfil"/>
                                                         </div>
                                                         { a.usuario_a_nombre.id === user?.id ? a.usuario_b_nombre.username : a.usuario_a_nombre.username }
                                                     </button>
