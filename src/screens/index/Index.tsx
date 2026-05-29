@@ -21,6 +21,7 @@ const Index = () => {
                         <p>¡Bienvenide a Lili! Busca algún libro y añádelo a tu biblioteca para empezar tu colección.</p>
                     </section> :
                     <>
+                        <Section titulo={"Últimos añadidos"} listaLibros={libros?.slice(0, 15)} isLoading={librosIsLoading} prestamos={prestamos}/>
                         { !librosIsLoading && leyendo!.length > 0 &&
                             <Section titulo={"Leyendo"} listaLibros={leyendo?.slice(0, 15)} isLoading={librosIsLoading} prestamos={prestamos}/>
                         }
